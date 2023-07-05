@@ -1,5 +1,8 @@
 // server.js
-
+const { validateRegistration } = require('./validators');
+const { validationResult } = require('express-validator');
+const authRoutes = require('./authRoutes');
+const expensesRoutes = require('./routes/expenses');
 const express = require('express');
 const cors = require('cors');
 
@@ -13,8 +16,15 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
-// Import routes
-const expensesRoutes = require('./routes/expenses');
+app.post('/register', validateRegistration, (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+}
+);
+
+app.use('/auth', authRoutes);
 
 // Use routes
 app.use('/expenses', expensesRoutes);
